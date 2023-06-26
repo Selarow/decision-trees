@@ -1,6 +1,5 @@
-from math import log2
-from numpy import unique
-from pandas import DataFrame, read_csv
+from pandas import read_csv
+from numpy import log2, unique, shape
 from prettyprint import PrettyPrintTree
 
 
@@ -29,8 +28,9 @@ class Node():
 
 
 class DecisionTree():
-    def __init__(self, max_depth=3):
+    def __init__(self, min_samples_split=3, max_depth=3):
         self.root = None
+        self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.labels = None
 
@@ -70,41 +70,40 @@ class DecisionTree():
         return left, right
 
 
-    def get_best_split(self, dataset, feature):
+    def get_best_split(self, dataset):
         max_info_gain = -float("inf")
-        thresholds = unique(dataset[feature])
         best_split = dict()
 
-        for t in thresholds:
-            left, right = self.split(dataset, t, feature)
+        for feature in self.labels:
+            thresholds = unique(dataset[feature])
 
-            if len(left) > 0 and len(right) > 0:
-                info_gain = self.information_gain(dataset[feature], left[feature], right[feature])
+            for t in thresholds:
+                left, right = self.split(dataset, t, feature)
 
-                if info_gain > max_info_gain:
-                    best_split["left"] = left
-                    best_split["right"] = right
-                    best_split["feature"] = feature
-                    best_split["threshold"] = t
-                    best_split["info_gain"] = info_gain
-                    max_info_gain = info_gain
-        
+                if len(left) > 0 and len(right) > 0:
+                    info_gain = self.information_gain(dataset.iloc[:,-1], left.iloc[:,-1], right.iloc[:,-1])
+
+                    if info_gain > max_info_gain:
+                        best_split["left"] = left
+                        best_split["right"] = right
+                        best_split["feature"] = feature
+                        best_split["threshold"] = t
+                        best_split["info_gain"] = info_gain
+                        max_info_gain = info_gain
+ 
         return best_split
 
 
     def build_tree(self, dataset, visual_tree, depth=0):
-        entropies = dict()
+        X = dataset.iloc[:,:-1].values
+        num_samples, _ = shape(X)
 
-        if depth <= self.max_depth:
-            for feature in self.labels:
-                entropies[self.entropy(dataset[feature])] = feature
-            
-            target_feature = entropies[min(entropies.keys())]
+        if num_samples >= self.min_samples_split and depth <= self.max_depth:
+            best_split = self.get_best_split(dataset)
 
-            best_split = self.get_best_split(dataset, target_feature)
-
-            if best_split and best_split["info_gain"] > 0:
-                visual_tree = visual_tree.add_child(TreeVisualization(f'{best_split["feature"]} ≤ {best_split["threshold"]}'))
+            if best_split["info_gain"] > 0:
+                visual_child = TreeVisualization(f'{best_split["feature"]} ≤ {best_split["threshold"]}')
+                visual_tree = visual_tree.add_child(visual_child)
                 left_subtree = self.build_tree(best_split["left"], visual_tree, depth+1)
                 right_subtree = self.build_tree(best_split["right"], visual_tree, depth+1)
 
@@ -139,4 +138,4 @@ if __name__ == "__main__":
         tree.print_tree()
     
     #iris()
-    heart()
+    #heart()
