@@ -1,6 +1,6 @@
 from math import log2
 from numpy import unique
-from pandas import read_csv
+from pandas import DataFrame, read_csv
 
 
 
@@ -19,26 +19,19 @@ def entropy(feature):
     return entropy
 
 
-def information_gain(parent, left, right):
-    weight_left = len(left) / len(parent)
-    weight_right = len(right) / len(parent)
+def information_gain(parent_feature, left_feature, right_feature):
+    weight_left = len(left_feature) / len(parent_feature)
+    weight_right = len(right_feature) / len(parent_feature)
 
-    info_gain = entropy(parent) - (weight_left * entropy(left) + weight_right * entropy(right))
+    info_gain = entropy(parent_feature) - (weight_left * entropy(left_feature) + weight_right * entropy(right_feature))
 
     return info_gain
 
 
 def split(dataset, threshold, feature):
-    left = []
-    right = []
+    left = dataset[dataset[feature] <= threshold]
+    right = dataset[dataset[feature] > threshold]
 
-    for i in dataset[feature]:
-        if i <= threshold:
-            left.append(i)
-        
-        else:
-            right.append(i)
-    
     return left, right
 
 
@@ -51,7 +44,7 @@ def get_best_split(dataset, feature):
         left, right = split(dataset, t, feature)
 
         if len(left) > 0 and len(right) > 0:
-            info_gain = information_gain(dataset[feature], left, right)
+            info_gain = information_gain(dataset[feature], left[feature], right[feature])
 
             if info_gain > max_info_gain:
                 best_split["threshold"] = t
@@ -61,6 +54,10 @@ def get_best_split(dataset, feature):
                 max_info_gain = info_gain
     
     return best_split
+
+
+def build_tree(dataset):
+    pass
 
 
 
@@ -78,5 +75,5 @@ for feature in labels:
     entropies[entropy(data[feature])] = feature
 
 target_feature = entropies[min(entropies.keys())]
-
-print(get_best_split(data, target_feature))
+best_split = get_best_split(data, target_feature)
+print(best_split)
