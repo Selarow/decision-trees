@@ -137,5 +137,5 @@ if __name__ == "__main__":
         tree.make(data, "death")
         tree.print_tree()
     
-    #iris()
+    iris()
     #heart()
