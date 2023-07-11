@@ -28,25 +28,25 @@ class Node():
 
 
 class DecisionTree():
-    def __init__(self, min_samples_split=3, max_depth=3):
+    def __init__(self, dataset, target, min_samples_split=3, max_depth=3):
         self.root = None
-        self.min_samples_split = min_samples_split
-        self.max_depth = max_depth
-        self.labels = None
-
-
-    def make(self, dataset, target):
         self.target = target
+        self.dataset = dataset
         self.labels = list(dataset.columns)
         self.labels.remove(target)
+        self.min_samples_split = min_samples_split
+        self.max_depth = max_depth
         self.visual_tree = TreeVisualization("root")
-        self.root = self.build_tree(dataset, self.visual_tree)
 
 
-    def entropy(self, feature):
+    def make(self):
+        self.root = self.build_tree(self.dataset, self.visual_tree)
+
+
+    def entropy(self, set):
         entropy = 0
-        n = len(feature)
-        _, classes = unique(feature, return_counts=True)
+        n = len(set)
+        _, classes = unique(set, return_counts=True)
 
         for c in classes:
             entropy += - (c / n) * log2(c / n)
@@ -54,11 +54,11 @@ class DecisionTree():
         return entropy
 
 
-    def information_gain(self, parent_feature, left_feature, right_feature):
-        weight_left = len(left_feature) / len(parent_feature)
-        weight_right = len(right_feature) / len(parent_feature)
+    def information_gain(self, parent, left, right):
+        weight_left = len(left) / len(parent)
+        weight_right = len(right) / len(parent)
 
-        info_gain = self.entropy(parent_feature) - (weight_left * self.entropy(left_feature) + weight_right * self.entropy(right_feature))
+        info_gain = self.entropy(parent) - (weight_left * self.entropy(left) + weight_right * self.entropy(right))
 
         return info_gain
 
@@ -66,6 +66,7 @@ class DecisionTree():
     def split(self, dataset, threshold, feature):
         left = dataset[dataset[feature] <= threshold]
         right = dataset[dataset[feature] > threshold]
+        assert(len(left) + len(right) == len(dataset))
 
         return left, right
 
@@ -95,8 +96,7 @@ class DecisionTree():
 
 
     def build_tree(self, dataset, visual_tree, depth=0):
-        X = dataset.iloc[:,:-1].values
-        num_samples, _ = shape(X)
+        num_samples, _ = shape(dataset.iloc[:,:-1].values)
 
         if num_samples >= self.min_samples_split and depth <= self.max_depth:
             best_split = self.get_best_split(dataset)
@@ -126,16 +126,16 @@ if __name__ == "__main__":
     def iris():
         labels = ["sepal_length", "sepal_width", "petal_length", "petal_width", "variety"]
         data = read_csv("iris.csv", skiprows=1, header=None, names=labels)
-        tree = DecisionTree()
-        tree.make(data, "variety")
+        tree = DecisionTree(data, "variety", max_depth=float("inf"))
+        tree.make()
         tree.print_tree()
     
     def heart():
-        labels = ["age", "anaemia", "creatinine", "diabetes", "ejection", "high bp", "platelets", "serum", "sex", "smoking", "death"]
+        labels = ["age", "anaemia", "creatinine", "diabetes", "ejection", "highbp", "platelets", "serum", "sex", "smoking", "death"]
         data = read_csv("Heart_Failure_Details.csv", usecols=range(1, len(labels)+1), skiprows=1, header=None, names=labels)
-        tree = DecisionTree()
-        tree.make(data, "death")
+        tree = DecisionTree(data, "death", max_depth=float("inf"))
+        tree.make()
         tree.print_tree()
     
-    iris()
+    #iris()
     #heart()
