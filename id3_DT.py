@@ -1,3 +1,4 @@
+from time import time
 from pandas import read_csv
 from numpy import log2, unique, shape
 from prettyprint import PrettyPrintTree
@@ -40,7 +41,10 @@ class DecisionTree():
 
 
     def make(self):
+        start = time()
         self.root = self.build_tree(self.dataset, self.visual_tree)
+        end = time()
+        print("execution time:", end - start, "seconds")
 
 
     def entropy(self, set):

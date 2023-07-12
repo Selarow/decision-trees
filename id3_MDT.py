@@ -1,3 +1,4 @@
+from time import time
 from pandas import read_csv
 from itertools import combinations
 from numpy import log2, unique, shape
@@ -41,7 +42,10 @@ class MultivariateDecisionTree():
 
 
     def make(self):
+        start = time()
         self.root = self.build_tree(self.dataset, self.visual_tree)
+        end = time()
+        print("execution time:", end - start, "seconds")
 
 
     def entropy(self, set):
@@ -73,6 +77,7 @@ class MultivariateDecisionTree():
 
 
     def get_best_split(self, dataset):
+        step_start = time()
         max_info_gain = -float("inf")
         best_split = dict()
 
@@ -95,7 +100,8 @@ class MultivariateDecisionTree():
                             best_split["info_gain"] = info_gain
                             max_info_gain = info_gain
 
-        print(f'left: {len(best_split["left"])} | right: {len(best_split["right"])}')
+        step_end = time()
+        print(f'left: {len(best_split["left"])} | right: {len(best_split["right"])} | execution time: {step_end - step_start} seconds')
 
         return best_split
 
