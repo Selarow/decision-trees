@@ -145,7 +145,7 @@ if __name__ == "__main__":
     def heart():
         labels = ["age", "anaemia", "creatinine", "diabetes", "ejection", "highbp", "platelets", "serum", "sex", "smoking", "death"]
         data = read_csv("Heart_Failure_Details.csv", usecols=range(1, len(labels)+1), skiprows=1, header=None, names=labels)
-        tree = MultivariateDecisionTree(data, "death", max_depth=float("inf"))
+        tree = MultivariateDecisionTree(data, "death", max_depth=3)
         tree.make()
         tree.print_tree()
     
