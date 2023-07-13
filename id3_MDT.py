@@ -1,6 +1,5 @@
 from time import time
 from pandas import read_csv
-from itertools import combinations
 from numpy import log2, unique, shape
 from prettyprint import PrettyPrintTree
 
@@ -81,24 +80,26 @@ class MultivariateDecisionTree():
         max_info_gain = -float("inf")
         best_split = dict()
 
-        for feature1, feature2 in combinations(self.labels, 2):
-            thresholds1 = unique(dataset[feature1])
-            thresholds2 = unique(dataset[feature2])
+        for feature1 in self.labels:
+            for feature2 in self.labels:
+                if feature1 != feature2:
+                    thresholds1 = unique(dataset[feature1])
+                    thresholds2 = unique(dataset[feature2])
 
-            for t1 in thresholds1:
-                for t2 in thresholds2:
-                    left, right = self.split(dataset, t1, feature1, t2, feature2)
+                    for t1 in thresholds1:
+                        for t2 in thresholds2:
+                            left, right = self.split(dataset, t1, feature1, t2, feature2)
 
-                    if len(left) > 0 and len(right) > 0:
-                        info_gain = self.information_gain(dataset.iloc[:,-1], left.iloc[:,-1], right.iloc[:,-1])
+                            if len(left) > 0 and len(right) > 0:
+                                info_gain = self.information_gain(dataset.iloc[:,-1], left.iloc[:,-1], right.iloc[:,-1])
 
-                        if info_gain > max_info_gain:
-                            best_split["left"] = left
-                            best_split["right"] = right
-                            best_split["feature"] = [feature1, feature2]
-                            best_split["threshold"] = [t1, t2]
-                            best_split["info_gain"] = info_gain
-                            max_info_gain = info_gain
+                                if info_gain > max_info_gain:
+                                    best_split["left"] = left
+                                    best_split["right"] = right
+                                    best_split["feature"] = [feature1, feature2]
+                                    best_split["threshold"] = [t1, t2]
+                                    best_split["info_gain"] = info_gain
+                                    max_info_gain = info_gain
 
         step_end = time()
         print(f'left: {len(best_split["left"])} | right: {len(best_split["right"])} | execution time: {step_end - step_start} seconds')
