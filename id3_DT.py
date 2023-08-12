@@ -129,17 +129,33 @@ class DecisionTree():
 if __name__ == "__main__":
     def iris():
         labels = ["sepal_length", "sepal_width", "petal_length", "petal_width", "variety"]
-        data = read_csv("iris.csv", skiprows=1, header=None, names=labels)
+        data = read_csv("./datasets/iris.csv", skiprows=1, header=None, names=labels)
         tree = DecisionTree(data, "variety", max_depth=float("inf"))
         tree.make()
         tree.print_tree()
     
     def heart():
         labels = ["age", "anaemia", "creatinine", "diabetes", "ejection", "highbp", "platelets", "serum", "sex", "smoking", "death"]
-        data = read_csv("Heart_Failure_Details.csv", usecols=range(1, len(labels)+1), skiprows=1, header=None, names=labels)
+        data = read_csv("./datasets/heart_failure.csv", usecols=range(1, len(labels)+1), skiprows=1, header=None, names=labels)
         tree = DecisionTree(data, "death", max_depth=3)
         tree.make()
         tree.print_tree()
     
+    def pumpkin():
+        labels = ["area", "perimeter", "major_axis_length", "minor_axis_length", "convex_area", "equiv_diameter", "eccentricity", "solidity", "extent", "roundness", "aspect_ratio", "compactness", "class"]
+        data = read_csv("./datasets/pumpkin.csv", skiprows=1, header=None, names=labels)
+        tree = DecisionTree(data, "class", max_depth=float("inf"))
+        tree.make()
+        tree.print_tree()
+    
+    def raisin():
+        labels = ["area", "major_axis_length", "minor_axis_length", "eccentricity", "convex_area", "extent", "perimeter", "class"]
+        data = read_csv("./datasets/raisin.csv", skiprows=1, header=None, names=labels)
+        tree = DecisionTree(data, "class", max_depth=float("inf"))
+        tree.make()
+        tree.print_tree()
+
     #iris()
     #heart()
+    #pumpkin()
+    #raisin()
