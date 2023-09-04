@@ -118,7 +118,8 @@ class MultivariateDecisionTree():
                                 max_info_gain = info_gain
 
         step_end = time()
-        print(f'left: {len(best_split["left"])} | right: {len(best_split["right"])} | execution time: {step_end - step_start} seconds')
+        if best_split:
+            print(f'left: {len(best_split["left"])} | right: {len(best_split["right"])} | execution time: {step_end - step_start} seconds')
 
         return best_split
 
@@ -128,6 +129,13 @@ class MultivariateDecisionTree():
 
         if num_samples >= self.min_samples_split and depth <= self.max_depth:
             best_split = self.get_best_split(dataset)
+
+            if not best_split:
+                remaining = list(dataset[self.target])
+                leaf = max(remaining, key=remaining.count)
+                visual_tree = visual_tree.add_child(TreeVisualization(leaf))
+
+                return Node(value=leaf)
 
             if best_split["info_gain"] > 0:
                 if best_split["unary"]:
